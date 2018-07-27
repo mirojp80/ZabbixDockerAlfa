@@ -1,0 +1,52 @@
+version: '3'
+services:
+  zabbix:
+    container_name: zabbix-web
+    image: zabbix
+    build: .
+    volumes:
+      - "$PWD/html:/usr/share/zabbix"
+    ports:
+      - "80:80"
+      - "10051:10051"
+      - "10050:10050"
+      - "162:162"
+    networks:
+      - net
+  db:
+    container_name: zabbix-db
+    image: mysql:5.7
+    environment:
+      MYSQL_ROOT_PASSWORD: 123456
+      MYSQL_USER: zabbix
+      MYSQL_PASSWORD: zabbix
+      MYSQL_DATABASE: zabbix
+    volumes:
+      - "$PWD/data:/var/lib/mysql"
+      - "$PWD/conf/create.sql:/docker-entrypoint-initdb.d/zabbix.sql"
+    ports:
+      - "3306:3306"
+    networks:
+      - net
+  pmyadmin:
+    container_name: myadmin
+    image: phpmyadmin/phpmyadmin
+    environment: 
+       PMA_ARBITRARY: 1
+       PMA_PORT: 3306
+       PMA_USER: zabbix
+       PMA_PASSWORD: zabbix
+       MYSQL_ROOT_PASSWORD: 123456
+       MYSQL_USER: zabbix
+       MYSQL_PASSWORD: zabbix
+    restart: always
+    ports:
+      - "8080:80"
+    volumes:
+      - /sessions 
+    networks:
+      - net 
+networks:
+  net:
+
+
